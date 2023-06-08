@@ -1,0 +1,117 @@
+-- DDL : CREATE ALTER DROP TRUNCATE
+-- DML : INSERT UPDATE DELETE
+-- DQL : SELECT
+-- DCL : GRANT REVOKE
+
+SHOW DATABASES;
+
+CREATE DATABASE NOOB_PK;
+-- DROP DATABASE NOOB_PK;
+
+USE NOOB_PK;
+
+CREATE TABLE IF NOT EXISTS EMPLOYEE(
+	ID INT,
+    EMP_NAME VARCHAR(20)
+    );
+    
+SHOW TABLES;
+
+-- TO SEE TABLE DEFINITION
+SHOW CREATE TABLE EMPLOYEE;
+
+CREATE TABLE IF NOT EXISTS EMPLOYEE_V1(
+	ID INT,
+    NAME VARCHAR(20),
+    SALARY DOUBLE,
+    HIRING_DATE DATE
+    );
+    
+
+INSERT INTO EMPLOYEE_V1 VALUES(
+	01, 'SHASHANK', 1000, '2022-06-05'
+    );
+
+-- COLUMN COUNT DOES NOT MATCH #ERROR
+-- INSERT INTO EMPLOYEE_V1 VALUES(
+-- 	01, 'SHASHANK', '2022-06-05'
+--     );
+
+-- USE THIS ONE WHEN WE DON'T KNOW VA
+-- CAN CHANGE THE ORDER OF COLUMNS WHILE INSERTING LIKE THIS,
+-- BUT THEN POSITION MUST BE SAME OF VALUES AND RESPECTIVE COLUMNS
+INSERT INTO EMPLOYEE_V1(ID, HIRING_DATE, NAME) VALUES(
+	02, '2023-01-07', 'PRAKHARA'
+    );
+    
+INSERT INTO EMPLOYEE_V1 VALUES
+	(03, 'ARUN', 2500, '2013-05-02'),
+    (06,'AMIT',5000,'2021-10-28'),
+	(04,'NITIN',3500,'2021-09-16'),
+	(05,'KAJAL',4000,'2021-09-20');
+    
+SELECT *
+FROM EMPLOYEE_V1;
+
+--- INTEGRITY CONSTRAINTS
+-- INTEGRITY CONSTRAINTS : NOT NULL, CHECK, UNIQUE, DEFAULT, PRIMARY & FOREIGN KEYS
+-- NULL : UNDEFINED, DOES NOT CONTAIN ANY VALUES
+-- UNIQUE : works like pk, but can contain null THAT TOO ONLY ONE TIME, AFTER THAT IT WILL BE TREATED AS PK AND WILL FAIL FOR NEXT NULL
+			-- NOT WORKING IN MYSQL ie inserting will null 2 timesd
+-- FOREIGN KEY : a ref. to a column which is the pk of another tables, can have multiple primary key
+-- DEFAULT : CAN TAKE NULL AS A VALUE
+
+-- NOT NULL, DEFAULT SHOULD BE APPLIED IN FRONT OF THE COL.
+  CREATE TABLE IF NOT EXISTS EMPLOYEE_WITH_CONSTRAINTS(
+	ID INT ,
+    NAME VARCHAR(20) NOT NULL,
+    SALARY DOUBLE,
+    HIRING_DATE DATE DEFAULT '2021-01-01',
+    UNIQUE (ID),
+    CHECK (SALARY > 1000)
+    );  
+    
+--- Example 1 for IC failure
+--- Exception - Column 'name' cannot be null
+insert into employee_with_constraints values(1,null,3000,'2021-11-20');
+
+--- Correct record
+insert into employee_with_constraints values(1,'Shashank',3000,'2021-11-20');
+
+--- Example 2 for IC failure
+--- Exception - Duplicate entry '1' for key 'employee_with_constraints.id'
+insert into employee_with_constraints values(1,'Rahul',5000,'2021-10-23');
+
+--- Another correct record because Unique can accept NULL as well
+insert into employee_with_constraints values(null,'Rahul',5000,'2021-10-23');
+
+--- Example 3 for IC failure
+--- Exception - Duplicate entry NULL for key 'employee_with_constraints.id'
+insert into employee_with_constraints values(null,'Rajat',2000,'2020-09-20');
+
+--- Example 4 for IC failure
+--- Exception - Check constraint 'employee_with_constraints_chk_1' is violated
+insert into employee_with_constraints values(5,'Amit',500,'2023-10-24');
+
+--- Test IC for default date
+insert into employee_with_constraints(id,name,salary) values(7,'Neeraj',3000);
+
+
+SELECT *
+FROM EMPLOYEE_WITH_CONSTRAINTS;
+
+-- CONSTRAINTS SHOULD HAVE A NICKNAME TO HAVE ABETTER UNDERSTANDING AND CAN CATCH ERROR EASILY
+  CREATE TABLE IF NOT EXISTS EMPLOYEE_WITH_CONSTRAINTS_TMP(
+	ID INT ,
+    NAME VARCHAR(20) NOT NULL,
+    SALARY DOUBLE,
+    HIRING_DATE DATE DEFAULT '2021-01-01',
+    CONSTRAINT UNIQUE_EMP_ID UNIQUE (ID),
+    CONSTRAINT SALARY_CHECK CHECK (SALARY > 1000)
+); 
+
+--- Check the name of constraint when it fails
+--- Exception - Check constraint 'salary_check' is violated
+insert into employee_with_constraints_tmp 
+values(5,'Amit',500,'2023-10-24');
+    
